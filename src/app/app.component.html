@@ -1,0 +1,25 @@
+<!-- <h1>{{ isElectron ? "isElectron" : "not electron" }}</h1>
+<div style="text-align:center">
+  <img width="300" src="https://cdn.shopify.com/s/files/1/0745/0441/products/FCP_7713-16_1500x1500.jpg?v=1558367632">
+</div> -->
+<div class="container">
+  <form (submit)="preventForm($event)">
+    <div class="form-group">
+      <h1 class="text-center text-primary">Todo App</h1>
+      <div class="input-group-prepend">
+        <input type="text" class="form-control" placeholder="Add Todo" #todoInput (keyup.enter)="add(todoInput)">
+        <span class="input-group-text" (click)="add(todoInput)">
+          <i class="material-icons">add</i>
+        </span>
+      </div>
+    </div>
+    <div class="data">
+      <ul class="list-instyled">
+        <li *ngFor="let todo of todos">
+          {{todo}}<i class="material-icons" (click)="delete(todo)">delete</i>
+        </li>
+      </ul>
+    </div>
+  </form>
+  <button (click)="save()">Save</button>
+</div>
