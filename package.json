@@ -8,8 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "electron": "ng build --base-href ./ && node postbuild.js && tsc --p electron",
-    "electron:run": "npm run electron && electron .",
+    "electron": "ng build --prod='true' --base-href ./ && node postbuild.js && tsc --p electron",
+    "electron:run": "npm run electron && electron . --serve",
     "electrin:build:mac": "npm run electron && electron-packager . --platform=darwin --overwrite --out electron-release"
   },
   "main": "electron/dist/main.js",

@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 
-// If you import a module but never use any of the imported values other than as TypeScript types,
-// the resulting javascript file will look as if you never imported the module at all.
-import { ipcRenderer, webFrame, remote } from 'electron';
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import { ipcRenderer } from 'electron';
 
 declare var window: Window;
 interface Window {
@@ -29,9 +25,8 @@ export class ElectronService {
   }
 
   async getDB() {
-    return new Promise<any[]>((resolve, reject) => {
+    return new Promise<string[]>((resolve, reject) => {
       this.ipcRenderer.once('getDBResponse', (event, arg) => {
-        console.log(arg);
         resolve(arg);
       });
 
@@ -40,7 +35,7 @@ export class ElectronService {
   }
 
   async saveDB(todos: string[]) {
-    return new Promise<any[]>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.ipcRenderer.once('saveDBResponse', (event, arg) => {
         resolve(arg);
       });

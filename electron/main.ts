@@ -30,7 +30,10 @@ function createWindow() {
     })
   );
 
-  win.webContents.openDevTools();
+  if (process.argv.some(arg => arg === '--serve')) {
+    win.webContents.openDevTools();
+  }
+
 
   win.on('closed', () => {
     win = null;
@@ -38,17 +41,9 @@ function createWindow() {
 }
 
 ipcMain.on('getDB', (event, arg) => {
-  // fs.writeFileSync(__dirname + '/db.json', JSON.stringify({ a: 'b' }));
   fs.readFile(__dirname + '/db.json', (e, d) => {
-    let a = '0';
-
-    try {
-      a = JSON.parse(d.toString());
-    } catch (error) {}
-    win.webContents.send('getDBResponse', e || a);
+    win.webContents.send('getDBResponse', JSON.parse(d.toString()));
   });
-  // const files = fs.readdirSync(__dirname);
-  // win.webContents.send('getFilesResponse', __dirname + '/db.json');
 });
 
 ipcMain.on('saveDB', (event, arg) => {

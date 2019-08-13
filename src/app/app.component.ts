@@ -8,6 +8,7 @@ import { ElectronService } from './services';
 })
 export class AppComponent {
   isElectron = false;
+  isSaving = false;
 
   todos: string[] = [];
 
@@ -16,33 +17,63 @@ export class AppComponent {
 
     if (this.isElectron) {
       this.electronService.getDB().then((db) => {
-        this.todos = this.todos.concat(db);
+        this.todos = db;
       });
     }
   }
 
-  add(input: HTMLInputElement) {
+  async add(input: HTMLInputElement) {
+    if (this.isSaving) {
+      return;
+    }
+
     const value = input.value;
+
+    if (!value) {
+      return;
+    }
 
     input.value = '';
     input.focus();
 
-    this.todos.push(value);
+    const todos = [...this.todos, value];
+
+    this.isSaving = true;
+
+    await this.save(todos);
+
+    this.isSaving = false;
+
+    this.todos = todos;
   }
 
-  delete(todo: string) {
-    this.todos = this.todos.filter(t => t !== todo);
+  async delete(todo: string) {
+    if (this.isSaving) {
+      return;
+    }
+
+    const todos = this.todos.filter(t => t !== todo);
+
+    this.isSaving = true;
+
+    await this.save(todos);
+
+    this.isSaving = false;
+
+    this.todos = todos;
   }
 
   preventForm($event: Event) {
     $event.preventDefault();
+
+    if (this.isSaving) {
+      return;
+    }
   }
 
-  save() {
+  async save(todos: string[]): Promise<void> {
     if (this.isElectron) {
-      this.electronService.saveDB(this.todos).then((r) => {
-        alert(r);
-      });
+      await this.electronService.saveDB(todos);
     }
   }
 
