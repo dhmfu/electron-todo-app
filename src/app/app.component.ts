@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ElectronService } from './services';
 
+import { Todo } from 'shared/todo';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -10,7 +12,7 @@ export class AppComponent {
   isElectron = false;
   isSaving = false;
 
-  todos: string[] = [];
+  todos: Todo[] = [];
 
   constructor(private electronService: ElectronService) {
     this.isElectron = electronService.isElectron;
@@ -22,7 +24,7 @@ export class AppComponent {
     }
   }
 
-  async add(input: HTMLInputElement) {
+  async add(input: HTMLInputElement) { // outdated
     if (this.isSaving) {
       return;
     }
@@ -36,31 +38,27 @@ export class AppComponent {
     input.value = '';
     input.focus();
 
-    const todos = [...this.todos, value];
-
     this.isSaving = true;
 
-    await this.save(todos);
+    await this.electronService.addTodo(value);
 
     this.isSaving = false;
 
-    this.todos = todos;
+    this.todos.push({ value }); // temp
   }
 
-  async delete(todo: string) {
+  async delete(todo: Todo) {
     if (this.isSaving) {
       return;
     }
 
-    const todos = this.todos.filter(t => t !== todo);
-
     this.isSaving = true;
 
-    await this.save(todos);
+    await this.electronService.deleteTodo(todo);
 
     this.isSaving = false;
 
-    this.todos = todos;
+    this.todos = this.todos.filter(t => t !== todo);
   }
 
   preventForm($event: Event) {
@@ -68,12 +66,6 @@ export class AppComponent {
 
     if (this.isSaving) {
       return;
-    }
-  }
-
-  async save(todos: string[]): Promise<void> {
-    if (this.isElectron) {
-      await this.electronService.saveDB(todos);
     }
   }
 

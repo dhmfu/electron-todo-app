@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { ipcRenderer } from 'electron';
 
+import { Todo } from 'shared/todo';
+
 declare var window: Window;
 interface Window {
   process: any;
@@ -25,7 +27,7 @@ export class ElectronService {
   }
 
   async getDB() {
-    return new Promise<string[]>((resolve, reject) => {
+    return new Promise<Todo[]>((resolve, reject) => {
       this.ipcRenderer.once('getDBResponse', (event, arg) => {
         resolve(arg);
       });
@@ -34,13 +36,23 @@ export class ElectronService {
     });
   }
 
-  async saveDB(todos: string[]) {
+  async addTodo(todoValue: string) {
     return new Promise<void>((resolve, reject) => {
-      this.ipcRenderer.once('saveDBResponse', (event, arg) => {
+      this.ipcRenderer.once('addTodoResponse', (event, arg) => {
         resolve(arg);
       });
 
-      this.ipcRenderer.send('saveDB', todos);
+      this.ipcRenderer.send('addTodo', todoValue);
+    });
+  }
+
+  async deleteTodo(todo: Todo) {
+    return new Promise<void>((resolve, reject) => {
+      this.ipcRenderer.once('deleteTodoResponse', (event, arg) => {
+        resolve(arg);
+      });
+
+      this.ipcRenderer.send('deleteTodo', todo);
     });
   }
 }

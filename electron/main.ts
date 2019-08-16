@@ -1,7 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import * as fs from 'fs';
+
+import * as db from './db';
+import { Todo } from '../shared/todo';
+
+export const serveMode = process.argv.some(arg => arg === '--serve');
 
 let win: BrowserWindow;
 
@@ -22,31 +26,41 @@ function createWindow() {
     }
   });
 
-  win.loadURL(
-    url.format({
-      pathname: path.join(__dirname, `/../../dist/todo-app-electron/index.html`),
-      protocol: 'file:',
-      slashes: true,
-    })
-  );
+  db.init().then(() => {
+    win.loadURL(
+      url.format({
+        pathname: path.join(__dirname, `/../../dist/todo-app-electron/index.html`),
+        protocol: 'file:',
+        slashes: true,
+      })
+    );
 
-  if (process.argv.some(arg => arg === '--serve')) {
-    win.webContents.openDevTools();
-  }
+    if (serveMode) {
+      win.webContents.openDevTools();
+    }
 
-
-  win.on('closed', () => {
-    win = null;
+    win.on('closed', () => {
+      db.closeDb().then(() => {
+        win = null;
+      });
+    });
   });
 }
 
 ipcMain.on('getDB', (event, arg) => {
-  fs.readFile(__dirname + '/db.json', (e, d) => {
-    win.webContents.send('getDBResponse', JSON.parse(d.toString()));
+  db.getAllTodos().then((todos) => {
+    win.webContents.send('getDBResponse', todos);
   });
 });
 
-ipcMain.on('saveDB', (event, arg) => {
-  fs.writeFileSync(__dirname + '/db.json', JSON.stringify(arg));
-  win.webContents.send('saveDBResponse', 'Sucess');
+ipcMain.on('addTodo', (e, arg: string) => {
+  db.addTodo(arg).then(() => {
+    win.webContents.send('addTodoResponse');
+  });
+});
+
+ipcMain.on('deleteTodo', (e, arg: Todo) => {
+  db.deleteTodo(arg.value).then(() => {
+    win.webContents.send('deleteTodoResponse');
+  });
 });
