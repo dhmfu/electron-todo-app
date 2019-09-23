@@ -8,10 +8,12 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "electron": "ng build --prod='true' --base-href ./ && node postbuild.js && tsc --p electron",
+    "postinstall": "electron-rebuild install-app-deps",
+    "electron": "ng build --prod --base-href ./ && node postbuild.js && tsc --p electron",
     "electron:run": "npm run electron && electron . --serve",
     "electron:build:mac": "npm run electron && electron-packager . --platform=darwin --overwrite --out electron-release",
-    "electron:rebuild": "electron-rebuild install-app-deps"
+    "electron:build:linux": "npm run electron && electron-packager . --platform=linux --overwrite --out electron-release",
+    "electron:build:win": "npm run electron && electron-packager . --platform=win32 --overwrite --out electron-release"
   },
   "main": "electron/dist/main.js",
   "private": true,
@@ -36,7 +38,6 @@
     "@angular/language-service": "~8.2.0",
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
-    "@types/node": "~8.9.4",
     "@types/sqlite3": "^3.1.5",
     "codelyzer": "^5.0.0",
     "electron": "^6.0.1",

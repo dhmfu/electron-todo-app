@@ -6,6 +6,7 @@
 /out-tsc
 /electron-release
 /electron/dist
+/electron/db/todos.db
 # Only exists if Bazel was run
 /bazel-out
 
